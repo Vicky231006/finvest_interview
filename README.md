@@ -1,70 +1,19 @@
-# Getting Started with Create React App
+# Architectural Flaw & Security Mitigation Strategy
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 🚨 The Root Flaw: Client-Side Trust Assumption
+The application loophole occurred because the previous architecture operated under the flawed assumption that the backend could trust any data sent from the client-side user interface. 
 
-## Available Scripts
+Frontend form validation (written in JavaScript inside a user's browser) is fundamentally an element of user experience—**it is not security**. An attacker can easily bypass the web browser UI entirely using API clients (`curl`, Postman, automated scripts) to fire raw HTTP `POST` requests directly to an open, unverified backend route configuration (e.g., `/api/register`). If the backend saves these payloads without secondary verification, registration checks and payment protocols are completely bypassed.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## 🔒 The Permanent Architectural Fix
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### 1. Zero-Trust Server-Side Schema Validation
+Never store raw client request content without isolation screening. All inbound parameters must run through strict structural verification at the backend controller gate level using object parser libraries (such as **Zod** or **Joi**). If data structures violate requirements (e.g., non-edu email patterns), the payload is rejected on the spot before interacting with any system databases.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### 2. Cryptographically Enforced Gateway Webhooks
+To verify that payments were successfully handled, the backend database write process must be completely decoupled from client control triggers. 
+* The system configuration must register an official **Server-to-Server Webhook Endpoint** directly with the payment provider infrastructure (such as Razorpay or Stripe).
+* Upon a successful checkout transaction, the provider's server contacts your backend webhook directly, carrying a cryptographically signed signature header computed with a shared private secret keyspace (`HMAC-SHA256`).
+* Your backend re-computes this cryptographic signature locally. Only when signatures match perfectly does the registration write update execute, guaranteeing every entry represents a genuine, paid transaction.
