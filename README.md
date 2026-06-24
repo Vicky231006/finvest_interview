@@ -16,4 +16,4 @@ Never store raw client request content without isolation screening. All inbound 
 To verify that payments were successfully handled, the backend database write process must be completely decoupled from client control triggers. 
 * The system configuration must register an official **Server-to-Server Webhook Endpoint** directly with the payment provider infrastructure (such as Razorpay or Stripe).
 * Upon a successful checkout transaction, the provider's server contacts your backend webhook directly, carrying a cryptographically signed signature header computed with a shared private secret keyspace (`HMAC-SHA256`).
-* Your backend re-computes this cryptographic signature locally. Only when signatures match perfectly does the registration write update execute, guaranteeing every entry represents a genuine, paid transaction.
+* The backend re-computes this cryptographic signature locally. Only when signatures match perfectly does the registration write update execute, guaranteeing every entry represents a genuine, paid transaction.
