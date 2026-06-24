@@ -10,8 +10,9 @@
 
 # production
 /build
-
+DESIGN.md
 # misc
+PRODUCT.md
 .DS_Store
 .env.local
 .env.development.local
