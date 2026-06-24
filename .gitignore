@@ -8,8 +8,6 @@
 # testing
 /coverage
 
-/.impeccable
-
 # production
 /build
 DESIGN.md
